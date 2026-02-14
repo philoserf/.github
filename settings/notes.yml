@@ -1,0 +1,7 @@
+_extends: .github
+
+repository:
+  name: notes
+  description: "My private Obsidian vault"
+  private: true
+  allow_auto_merge: false

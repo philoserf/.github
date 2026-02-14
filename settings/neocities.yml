@@ -1,0 +1,8 @@
+_extends: .github
+
+repository:
+  name: neocities
+  description: "brochure ware"
+  homepage: https://philoserf.neocities.org
+  topics:
+    - personal-website

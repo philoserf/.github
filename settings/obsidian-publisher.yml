@@ -1,0 +1,10 @@
+_extends: .github
+
+repository:
+  name: obsidian-publisher
+  description: "Publish Obsidian notes to GitHub for Hugo processing. This plugin converts Obsidian syntax (wikilinks, image references) to Hugo markdown and uploads files via the GitHub API."
+  homepage: https://philoserf.github.io/obsidian-publisher/
+  topics:
+    - github-pages
+    - hugo
+    - obsidian-plugin

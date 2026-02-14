@@ -1,0 +1,6 @@
+_extends: .github
+
+repository:
+  name: both
+  description: "Placeholder "
+  homepage: https://my.flowershow.app/@philoserf/both

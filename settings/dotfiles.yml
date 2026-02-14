@@ -1,0 +1,8 @@
+_extends: .github
+
+repository:
+  name: dotfiles
+  description: "private"
+  private: true
+  has_wiki: true
+  allow_auto_merge: false
