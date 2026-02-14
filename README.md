@@ -16,8 +16,8 @@ The Settings app reads `.github/settings.yml` from each repo on push to the defa
 settings/
   <repo>.yml         Per-repo configs (19 files)
 scripts/
-  generate.fish      Pull current metadata from GH API, regenerate per-repo files
-  distribute.fish    Create PRs in each repo with their settings.yml
+  generate.sh        Pull current metadata from GH API, regenerate per-repo files
+  distribute.sh      Create PRs in each repo with their settings.yml
 ```
 
 ## Base config
@@ -36,18 +36,18 @@ The base config in `.github/settings.yml` enforces:
 **Regenerate per-repo configs** after changing repo metadata in GitHub:
 
 ```bash
-fish scripts/generate.fish
+./scripts/generate.sh
 ```
 
 **Distribute settings** to all repos (creates PRs):
 
 ```bash
-fish scripts/distribute.fish
+./scripts/distribute.sh
 ```
 
 **Change a shared setting:** Edit `.github/settings.yml`, commit, and push. All repos inheriting the base pick up the change on next Settings app sync.
 
-**Change a per-repo setting:** Edit the file in `settings/`, then copy it to that repo's `.github/settings.yml` (or re-run `distribute.fish`).
+**Change a per-repo setting:** Edit the file in `settings/`, then copy it to that repo's `.github/settings.yml` (or re-run `distribute.sh`).
 
 ## Adding a new repo
 
@@ -56,7 +56,7 @@ fish scripts/distribute.fish
 3. Regenerate configs — the script discovers all non-archived repos automatically:
 
    ```bash
-   fish scripts/generate.fish
+   ./scripts/generate.sh
    ```
 
 4. Review the generated file in `settings/<repo>.yml`. Add any overrides (e.g., `private: true`, `is_template: true`) if the repo deviates from the base.
@@ -70,7 +70,7 @@ fish scripts/distribute.fish
 6. Distribute the config to the new repo:
 
    ```bash
-   fish scripts/distribute.fish
+   ./scripts/distribute.sh
    ```
 
    The script skips repos that already have an open PR, so it's safe to run against all repos.
