@@ -31,19 +31,6 @@ The base config in `.github/settings.yml` enforces:
 - **Labels:** bug, enhancement, documentation, question
 - **Branch protection:** linear history required on `main`
 
-## Per-repo overrides
-
-Each file in `settings/` extends the base and adds repo-specific metadata (name, description, homepage, topics). Some repos deviate from the base:
-
-| Repo                       | Override                         |
-| -------------------------- | -------------------------------- |
-| `dotfiles`                 | private, has wiki, no auto-merge |
-| `notes`                    | private, no auto-merge           |
-| `obsidian-plugin-template` | template repo                    |
-| `obsidian-starter`         | template repo                    |
-| `philoserf`                | issues disabled                  |
-| `T01`                      | issues disabled                  |
-
 ## Common tasks
 
 **Regenerate per-repo configs** after changing repo metadata in GitHub:
@@ -58,8 +45,34 @@ fish scripts/generate.fish
 fish scripts/distribute.fish
 ```
 
-**Add a new repo:** Run `generate.fish` to pick it up automatically, then run `distribute.fish` to create its PR.
-
 **Change a shared setting:** Edit `.github/settings.yml`, commit, and push. All repos inheriting the base pick up the change on next Settings app sync.
 
 **Change a per-repo setting:** Edit the file in `settings/`, then copy it to that repo's `.github/settings.yml` (or re-run `distribute.fish`).
+
+## Adding a new repo
+
+1. Create the repo on GitHub (or confirm it already exists and is not archived).
+2. Install the [Settings app](https://github.com/apps/settings) on the new repo if it isn't already enabled for all repos.
+3. Regenerate configs — the script discovers all non-archived repos automatically:
+
+   ```bash
+   fish scripts/generate.fish
+   ```
+
+4. Review the generated file in `settings/<repo>.yml`. Add any overrides (e.g., `private: true`, `is_template: true`) if the repo deviates from the base.
+5. Commit the new config to this repo:
+
+   ```bash
+   git add settings/<repo>.yml
+   git commit -m "feat: add settings for <repo>"
+   ```
+
+6. Distribute the config to the new repo:
+
+   ```bash
+   fish scripts/distribute.fish
+   ```
+
+   The script skips repos that already have an open PR, so it's safe to run against all repos.
+
+7. Merge the PR in the new repo. The Settings app applies the config on merge.
