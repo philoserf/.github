@@ -1,0 +1,6 @@
+_extends: .github
+
+repository:
+  name: sandbox
+  description: "COGITA·DISCE·NECTE·ENVNTIA"
+  homepage: http://markpaulayers.com/

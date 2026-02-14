@@ -1,0 +1,36 @@
+repository:
+  default_branch: main
+  allow_rebase_merge: true
+  allow_squash_merge: false
+  allow_merge_commit: false
+  delete_branch_on_merge: true
+  has_projects: false
+  has_wiki: false
+  has_downloads: false
+  has_issues: true
+  allow_auto_merge: true
+  enable_vulnerability_alerts: true
+  enable_automated_security_fixes: true
+
+labels:
+  - name: bug
+    color: CC0000
+    description: Something isn't working
+  - name: enhancement
+    color: "336699"
+    description: New feature or request
+  - name: documentation
+    color: 0075ca
+    description: Improvements or additions to documentation
+  - name: question
+    color: d876e3
+    description: Further information is requested
+
+branches:
+  - name: main
+    protection:
+      required_pull_request_reviews: null
+      required_status_checks: null
+      enforce_admins: null
+      required_linear_history: true
+      restrictions: null
