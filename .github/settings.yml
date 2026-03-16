@@ -25,6 +25,24 @@ labels:
   - name: question
     color: d876e3
     description: Further information is requested
+  - name: duplicate
+    color: cfd3d7
+    description: This issue or pull request already exists
+  - name: invalid
+    color: e4e669
+    description: This doesn't seem right
+  - name: wontfix
+    color: ffffff
+    description: This will not be worked on
+  - name: dependencies
+    color: 0366d6
+    description: Pull requests that update a dependency file
+  - name: tech-debt
+    color: FBCA04
+    description: Technical debt and code quality improvements
+  - name: chore
+    color: ededed
+    description: Work unrelated to the core purpose
 
 branches:
   - name: main
