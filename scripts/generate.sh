@@ -2,28 +2,17 @@
 set -euo pipefail
 
 # Generate per-repo settings.yml files from GitHub API data.
-# Pulls current metadata for each active philoserf repo and writes
-# a settings/ YAML file with _extends: .github plus repo-specific overrides.
+# Only creates files for repos that don't already have one.
+# Deviations from base settings are detected automatically via the API.
 
 owner=philoserf
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 settings_dir="$script_dir/../settings"
-excluded=".github"
 
-# Repos with known deviations from the base config
-has_wiki=(dotfiles)
-no_issues=(philoserf T01)
-no_auto_merge=(notes dotfiles)
-template_repos=(obsidian-plugin-template obsidian-starter)
-
-contains() {
-	local needle="$1"
-	shift
-	for item in "$@"; do
-		[[ $item == "$needle" ]] && return 0
-	done
-	return 1
-}
+# Base config defaults — deviations from these are written to per-repo files
+base_has_wiki=false
+base_has_issues=true
+base_allow_auto_merge=true
 
 mkdir -p "$settings_dir"
 
@@ -39,16 +28,40 @@ fi
 count=0
 
 for repo in "${repos[@]}"; do
-	[[ $repo == "$excluded" ]] && continue
+	# Skip the .github repo — its settings are managed directly
+	[[ $repo == ".github" ]] && continue
 
-	echo "  $repo"
+	# Skip repos that already have a settings file
+	if [[ -f "$settings_dir/$repo.yml" ]]; then
+		continue
+	fi
 
-	data=$(gh api "repos/$owner/$repo" --jq '[.name, .description // "", .homepage // "", (.topics // [] | join(", ")), .private, .is_template] | @tsv') || {
+	echo "  $repo (new)"
+
+	data=$(gh api "repos/$owner/$repo" --jq '{
+		name,
+		description: (.description // ""),
+		homepage: (.homepage // ""),
+		topics: (.topics // []),
+		private: .private,
+		is_template: .is_template,
+		has_wiki: .has_wiki,
+		has_issues: .has_issues,
+		allow_auto_merge: .allow_auto_merge
+	}') || {
 		echo "    Failed to fetch metadata, skipping" >&2
 		continue
 	}
 
-	IFS=$'\t' read -r name description homepage topics is_private is_template <<<"$data"
+	name=$(jq -r '.name' <<< "$data")
+	description=$(jq -r '.description' <<< "$data")
+	homepage=$(jq -r '.homepage' <<< "$data")
+	is_private=$(jq -r '.private' <<< "$data")
+	is_template=$(jq -r '.is_template' <<< "$data")
+	has_wiki=$(jq -r '.has_wiki' <<< "$data")
+	has_issues=$(jq -r '.has_issues' <<< "$data")
+	allow_auto_merge=$(jq -r '.allow_auto_merge' <<< "$data")
+	mapfile -t topics < <(jq -r '.topics[]' <<< "$data")
 
 	outfile="$settings_dir/$name.yml"
 
@@ -59,19 +72,18 @@ for repo in "${repos[@]}"; do
 		echo "  name: $name"
 
 		if [[ -n $description ]]; then
-			escaped_desc="${description//\"/\\\"}"
-			echo "  description: \"$escaped_desc\""
+			# Wrap in quotes and escape internal quotes
+			echo "  description: \"${description//\"/\\\"}\""
 		fi
 
 		if [[ -n $homepage ]]; then
 			echo "  homepage: $homepage"
 		fi
 
-		if [[ -n $topics ]]; then
+		if [[ ${#topics[@]} -gt 0 ]]; then
 			echo "  topics:"
-			IFS=', ' read -ra topic_list <<<"$topics"
-			for topic in "${topic_list[@]}"; do
-				[[ -n $topic ]] && echo "    - $topic"
+			for topic in "${topics[@]}"; do
+				echo "    - $topic"
 			done
 		fi
 
@@ -79,23 +91,23 @@ for repo in "${repos[@]}"; do
 			echo "  private: true"
 		fi
 
-		# Deviations from base
-		if contains "$name" "${has_wiki[@]}"; then
-			echo "  has_wiki: true"
+		# Deviations from base settings
+		if [[ $has_wiki != "$base_has_wiki" ]]; then
+			echo "  has_wiki: $has_wiki"
 		fi
 
-		if contains "$name" "${no_issues[@]}"; then
-			echo "  has_issues: false"
+		if [[ $has_issues != "$base_has_issues" ]]; then
+			echo "  has_issues: $has_issues"
 		fi
 
-		if contains "$name" "${no_auto_merge[@]}"; then
-			echo "  allow_auto_merge: false"
+		if [[ $allow_auto_merge != "$base_allow_auto_merge" ]]; then
+			echo "  allow_auto_merge: $allow_auto_merge"
 		fi
 
-		if contains "$name" "${template_repos[@]}" || [[ $is_template == "true" ]]; then
+		if [[ $is_template == "true" ]]; then
 			echo "  is_template: true"
 		fi
-	} >"$outfile"
+	} > "$outfile"
 
 	count=$((count + 1))
 done

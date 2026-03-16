@@ -2,5 +2,7 @@ _extends: .github
 
 repository:
   name: both
-  description: "Placeholder"
+  description: "A digital garden on Flowershow"
   homepage: https://my.flowershow.app/@philoserf/both
+  topics:
+    - digital-garden

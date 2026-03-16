@@ -1,0 +1,7 @@
+_extends: .github
+
+repository:
+  name: dotfiles.archive
+  description: "ARCHIVE: Another yadm-managed personal dotfile collection"
+  topics:
+    - dotfiles
