@@ -4,4 +4,6 @@ repository:
   name: T01
   description: "This is an experiment. It is beginning now."
   homepage: https://flowershow.app/@philoserf/T01
+  topics:
+    - digital-garden
   has_issues: false

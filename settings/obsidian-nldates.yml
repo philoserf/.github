@@ -1,0 +1,7 @@
+_extends: .github
+
+repository:
+  name: obsidian-nldates
+  description: "ARCHIVE: Work with dates in natural language in Obsidian"
+  topics:
+    - obsidian-plugin

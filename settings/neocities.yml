@@ -2,7 +2,7 @@ _extends: .github
 
 repository:
   name: neocities
-  description: "brochure ware"
+  description: "A personal brochure site on Neocities"
   homepage: https://philoserf.neocities.org
   topics:
     - personal-website

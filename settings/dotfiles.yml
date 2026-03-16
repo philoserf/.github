@@ -2,7 +2,9 @@ _extends: .github
 
 repository:
   name: dotfiles
-  description: "private"
+  description: "Personal dotfiles managed with a bare git repo"
+  topics:
+    - dotfiles
   private: true
   has_wiki: true
   allow_auto_merge: false
