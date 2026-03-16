@@ -7,7 +7,7 @@ set -euo pipefail
 owner=philoserf
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 settings_dir="$script_dir/../settings"
-branch="settings/update-$(date +%Y%m%d)"
+branch="settings/update-$(date +%Y%m%d-%H%M)"
 file_path=".github/settings.yml"
 # shellcheck disable=SC2016
 pr_body='Update `.github/settings.yml` for declarative repo settings via [repository-settings/app](https://github.com/repository-settings/app).
@@ -32,7 +32,7 @@ fi
 declare -A archived_set
 while IFS= read -r name; do
 	archived_set["$name"]=1
-done < <(gh repo list "$owner" --archived --json name --jq '.[].name' --limit 100)
+done < <(gh repo list "$owner" --archived --json name --jq '.[].name' --limit 500)
 
 echo "Will process ${#configs[@]} settings files."
 echo ""
@@ -72,8 +72,8 @@ for config in "${configs[@]}"; do
 		continue
 	fi
 
-	# Read local content
-	local_content=$(base64 < "$config")
+	# Read local content once
+	local_raw=$(cat "$config")
 
 	# Check current file on the default branch
 	existing=$(gh api "repos/$owner/$repo/contents/$file_path" 2>/dev/null || echo "null")
@@ -82,13 +82,15 @@ for config in "${configs[@]}"; do
 	# Compare decoded content — skip if identical
 	if [[ -n $file_sha ]]; then
 		remote_decoded=$(echo "$existing" | jq -r '.content // empty' | base64 -d 2>/dev/null || true)
-		local_decoded=$(cat "$config")
-		if [[ $local_decoded == "$remote_decoded" ]]; then
+		if [[ $local_raw == "$remote_decoded" ]]; then
 			echo "  No changes"
 			unchanged=$((unchanged + 1))
 			continue
 		fi
 	fi
+
+	# Encode for API upload (only after confirming changes exist)
+	local_b64=$(base64 <<< "$local_raw")
 
 	# Determine add vs update
 	if [[ -n $file_sha ]]; then
@@ -99,8 +101,14 @@ for config in "${configs[@]}"; do
 		pr_title="Add repository settings"
 	fi
 
-	# Get default branch HEAD SHA
-	default_branch_sha=$(gh api "repos/$owner/$repo/git/ref/heads/main" --jq '.object.sha') || {
+	# Get default branch name, then its HEAD SHA
+	default_branch=$(gh api "repos/$owner/$repo" --jq '.default_branch' 2>/dev/null) || default_branch=""
+	if [[ -z $default_branch ]]; then
+		echo "  Failed to get default branch" >&2
+		failed=$((failed + 1))
+		continue
+	fi
+	default_branch_sha=$(gh api "repos/$owner/$repo/git/ref/heads/$default_branch" --jq '.object.sha') || {
 		echo "  Failed to get default branch SHA" >&2
 		failed=$((failed + 1))
 		continue
@@ -119,7 +127,7 @@ for config in "${configs[@]}"; do
 	put_args=(
 		-X PUT
 		-f "message=$commit_msg"
-		-f "content=$local_content"
+		-f "content=$local_b64"
 		-f "branch=$branch"
 	)
 	if [[ -n $file_sha ]]; then
