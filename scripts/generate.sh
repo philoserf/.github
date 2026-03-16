@@ -18,50 +18,48 @@ mkdir -p "$settings_dir"
 
 echo "Fetching repos for $owner..."
 
-mapfile -t repos < <(gh repo list "$owner" --no-archived --json name --jq '.[].name' --limit 100)
+# Bulk fetch all repo metadata in a single API call
+# Note: gh repo list doesn't expose autoMergeAllowed, so we fetch it per-repo only when needed
+mapfile -t repo_json < <(
+	gh repo list "$owner" --no-archived --limit 500 \
+		--json name,description,homepageUrl,repositoryTopics,isPrivate,isTemplate,hasWikiEnabled,hasIssuesEnabled \
+		--jq '.[] | @json'
+)
 
-if [[ ${#repos[@]} -eq 0 ]]; then
+if [[ ${#repo_json[@]} -eq 0 ]]; then
 	echo "Failed to fetch repo list" >&2
 	exit 1
 fi
 
 count=0
 
-for repo in "${repos[@]}"; do
+for entry in "${repo_json[@]}"; do
+	# Extract all fields in a single jq call
+	IFS=$'\t' read -r name description homepage is_private is_template has_wiki has_issues < <(
+		jq -r '[
+			.name,
+			(.description // ""),
+			(.homepageUrl // ""),
+			(.isPrivate | tostring),
+			(.isTemplate | tostring),
+			(.hasWikiEnabled | tostring),
+			(.hasIssuesEnabled | tostring)
+		] | join("\t")' <<< "$entry"
+	)
+	mapfile -t topics < <(jq -r '(.repositoryTopics // [])[] | .name' <<< "$entry")
+
 	# Skip the .github repo — its settings are managed directly
-	[[ $repo == ".github" ]] && continue
+	[[ $name == ".github" ]] && continue
 
 	# Skip repos that already have a settings file
-	if [[ -f "$settings_dir/$repo.yml" ]]; then
+	if [[ -f "$settings_dir/$name.yml" ]]; then
 		continue
 	fi
 
-	echo "  $repo (new)"
+	echo "  $name (new)"
 
-	data=$(gh api "repos/$owner/$repo" --jq '{
-		name,
-		description: (.description // ""),
-		homepage: (.homepage // ""),
-		topics: (.topics // []),
-		private: .private,
-		is_template: .is_template,
-		has_wiki: .has_wiki,
-		has_issues: .has_issues,
-		allow_auto_merge: .allow_auto_merge
-	}') || {
-		echo "    Failed to fetch metadata, skipping" >&2
-		continue
-	}
-
-	name=$(jq -r '.name' <<< "$data")
-	description=$(jq -r '.description' <<< "$data")
-	homepage=$(jq -r '.homepage' <<< "$data")
-	is_private=$(jq -r '.private' <<< "$data")
-	is_template=$(jq -r '.is_template' <<< "$data")
-	has_wiki=$(jq -r '.has_wiki' <<< "$data")
-	has_issues=$(jq -r '.has_issues' <<< "$data")
-	allow_auto_merge=$(jq -r '.allow_auto_merge' <<< "$data")
-	mapfile -t topics < <(jq -r '.topics[]' <<< "$data")
+	# Fetch allow_auto_merge separately (not available in gh repo list)
+	allow_auto_merge=$(gh api "repos/$owner/$name" --jq '.allow_auto_merge // false' 2>/dev/null || echo "false")
 
 	outfile="$settings_dir/$name.yml"
 
