@@ -7,7 +7,7 @@ set -euo pipefail
 owner=philoserf
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 settings_dir="$script_dir/../settings"
-branch="settings/update-$(date +%Y%m%d-%H%M)"
+branch="settings/update-$(date +%Y%m%d-%H%M%S)"
 file_path=".github/settings.yml"
 # shellcheck disable=SC2016
 pr_body='Update `.github/settings.yml` for declarative repo settings via [repository-settings/app](https://github.com/repository-settings/app).
@@ -81,7 +81,7 @@ for config in "${configs[@]}"; do
 
 	# Compare decoded content — skip if identical
 	if [[ -n $file_sha ]]; then
-		remote_decoded=$(echo "$existing" | jq -r '.content // empty' | base64 -d 2>/dev/null || true)
+		remote_decoded=$(echo "$existing" | jq -r '.content // empty' | base64 --decode 2>/dev/null || true)
 		if [[ $local_raw == "$remote_decoded" ]]; then
 			echo "  No changes"
 			unchanged=$((unchanged + 1))
@@ -90,7 +90,8 @@ for config in "${configs[@]}"; do
 	fi
 
 	# Encode for API upload (only after confirming changes exist)
-	local_b64=$(base64 <<< "$local_raw")
+	# Use base64 on the file directly to avoid here-string trailing newline
+	local_b64=$(base64 < "$config")
 
 	# Determine add vs update
 	if [[ -n $file_sha ]]; then
@@ -148,6 +149,8 @@ for config in "${configs[@]}"; do
 		succeeded=$((succeeded + 1))
 	else
 		echo "  Failed to create PR" >&2
+		# Clean up the branch
+		gh api -X DELETE "repos/$owner/$repo/git/refs/heads/$branch" >/dev/null 2>&1 || true
 		failed=$((failed + 1))
 	fi
 done
