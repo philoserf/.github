@@ -1,0 +1,7 @@
+_extends: .github
+
+repository:
+  name: obsidian-sort-lines
+  description: "Sort and Permute lines in whole file or selection."
+  topics:
+    - obsidian-plugin

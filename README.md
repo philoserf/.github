@@ -14,7 +14,7 @@ The Settings app reads `.github/settings.yml` from each repo on push to the defa
 .github/
   settings.yml       Base config (merge strategy, labels, branch protection)
 settings/
-  <repo>.yml         Per-repo configs (19 files)
+  <repo>.yml         Per-repo configs (25 files)
 scripts/
   generate.sh        Pull current metadata from GH API, regenerate per-repo files
   distribute.sh      Create PRs in each repo with their settings.yml
@@ -28,7 +28,7 @@ The base config in `.github/settings.yml` enforces:
 - **Cleanup:** delete branches on merge, auto-merge enabled
 - **Security:** vulnerability alerts and automated fixes enabled
 - **Features:** issues enabled; wiki, projects, downloads disabled
-- **Labels:** bug, enhancement, documentation, question
+- **Labels:** bug, enhancement, documentation, question, duplicate, invalid, wontfix, dependencies, tech-debt, chore
 - **Branch protection:** linear history required on `main`
 
 ## Common tasks
