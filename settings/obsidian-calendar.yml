@@ -1,7 +1,0 @@
-_extends: .github
-
-repository:
-  name: obsidian-calendar
-  description: "ARCHIVE: Simple calendar widget for Obsidian"
-  topics:
-    - obsidian-plugin
