@@ -1,0 +1,8 @@
+_extends: .github
+
+repository:
+  name: cx
+  description: "macOS CLI for managing Apple Contacts via JXA"
+  homepage: false
+  has_wiki: true
+  has_issues: 

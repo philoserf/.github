@@ -1,7 +1,0 @@
-_extends: .github
-
-repository:
-  name: dotfiles.archive.too
-  description: "ARCHIVE: Home directory dotfiles managed with yadm"
-  topics:
-    - dotfiles

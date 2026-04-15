@@ -1,8 +1,0 @@
-_extends: .github
-
-repository:
-  name: contacts-cli
-  description: "A Swift CLI for managing contacts"
-  topics:
-    - cli
-    - swift
