@@ -1,8 +1,0 @@
-_extends: .github
-
-repository:
-  name: neocities
-  description: "A personal brochure site on Neocities"
-  homepage: https://philoserf.neocities.org
-  topics:
-    - personal-website

@@ -1,5 +1,0 @@
-_extends: .github
-
-repository:
-  name: .github
-  description: "Default community health files and repository settings for philoserf"

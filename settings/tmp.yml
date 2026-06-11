@@ -1,8 +1,0 @@
-_extends: .github
-
-repository:
-  name: tmp
-  description: "a test Hugo site"
-  homepage: https://philoserf.github.io/tmp/
-  topics:
-    - test-site

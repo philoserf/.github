@@ -1,8 +1,0 @@
-_extends: .github
-
-repository:
-  name: obsidian-review
-  description: "An Obsidian plugin to randomly review your vault notes and track progress."
-  homepage: false
-  has_wiki: true
-  has_issues: 
