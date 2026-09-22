@@ -20,6 +20,11 @@ instead of opening an issue.
   `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`.
 - Describe why in the pull request; the diff already shows what.
 
+## Conduct
+
+Participation is governed by the
+[code of conduct](https://github.com/philoserf/.github/blob/main/CODE_OF_CONDUCT.md).
+
 ## License
 
 By contributing, you agree that your contributions are licensed under the
