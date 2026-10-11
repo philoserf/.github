@@ -1,7 +1,3 @@
-# Security Policy
+# Security
 
-## Reporting a Vulnerability
-
-If you discover a security vulnerability in any `philoserf` repository, please report it responsibly by emailing **mark@philoserf.com**.
-
-Please do not open a public issue for security vulnerabilities.
+Found a vulnerability in a `philoserf` repository? Email <mark@philoserf.com> instead of opening a public issue.

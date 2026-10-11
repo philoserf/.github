@@ -14,15 +14,14 @@ instead of opening an issue.
 ## Pull requests
 
 - One concern per pull request.
-- Match the surrounding style, and run whatever lint, format, and test commands
-  the repository defines before pushing.
-- Write [Conventional Commits](https://www.conventionalcommits.org/) subjects:
-  `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`.
+- Match the surrounding style, and run the repository's `task` gate before
+  pushing; it is the only check.
+- Write the subject as the line you'd want to read in the release notes.
 - Describe why in the pull request; the diff already shows what.
 
 ## Conduct
 
-Participation is governed by the
+Be kind. See the
 [code of conduct](https://github.com/philoserf/.github/blob/main/CODE_OF_CONDUCT.md).
 
 ## License
