@@ -6,6 +6,6 @@
 
 ## Checks
 
-<!-- Which of the repository's lint, format and test commands you ran. -->
+<!-- Did the repository's `task` gate pass? -->
 
 <!-- One "Closes #N" per line, each on its own line, so GitHub links it. -->
